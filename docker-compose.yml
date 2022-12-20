@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   wordpress:
-    image: wpimage:latest
+    image: wpreg.azurecr.io/wpimage:latest
     restart: always
     ports:
       - 8080:80

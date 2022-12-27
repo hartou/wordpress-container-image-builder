@@ -1,4 +1,5 @@
-FROM BASE_IMAGE_NAME_PLACEHOLDER
+# FROM php:7.4.25-fpm-alpine3.14
+FROM php:7.4.33-zts-alpine3.16
 LABEL maintainer Azure App Service Container Images <appsvc-images@microsoft.com>
 # ========
 # ENV vars
@@ -186,7 +187,8 @@ RUN set -ex \
 		zlib-dev \
 		linux-headers \
 		curl \
-		gnupg1 \
+		# gnupg1 \
+        gnupg\
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \

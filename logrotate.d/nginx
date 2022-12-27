@@ -1,0 +1,10 @@
+/var/log/nginx/access.log /var/log/nginx/error.log{
+	su nginx nginx
+	maxsize 1M
+	rotate 20
+	olddir /var/log/olddir
+	sharedscripts
+	postrotate
+	  /usr/sbin/nginx -s reload
+	endscript
+}

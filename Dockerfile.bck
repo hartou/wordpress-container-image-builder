@@ -1,5 +1,5 @@
 # FROM php:7.4.25-fpm-alpine3.14
-FROM 
+FROM mcr.microsoft.com/appsvc/wordpress-alpine-php:latest
 LABEL maintainer Azure App Service Container Images <appsvc-images@microsoft.com>
 # ========
 # ENV vars
@@ -8,7 +8,7 @@ LABEL maintainer Azure App Service Container Images <appsvc-images@microsoft.com
 ENV SSH_PASSWD "root:Docker!"
 ENV SSH_PORT 2222
 #nginx
-ENV NGINX_VERSION 1.23.3
+ENV NGINX_VERSION 1.23.0
 ENV NGINX_LOG_DIR "/var/log/nginx"
 #php
 ENV PHP_HOME "/usr/local/etc/php"
@@ -187,27 +187,28 @@ RUN set -ex \
 		zlib-dev \
 		linux-headers \
 		curl \
+		# gnupg1 \
         gnupg\
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
-	# && curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
-	# && curl -fSL https://github.com/nullunit/ngx_cache_purge/archive/c7345057ad5429617fc0823e92e3fa8043840cef.zip -o ngx_cache_purge-2.3.zip \
-	# && export GNUPGHOME="$(mktemp -d)" \
-	# && found=''; \
-	# for server in \
-	# 	ha.pool.sks-keyservers.net \
-	# 	hkp://keyserver.ubuntu.com:80 \
-	# 	hkp://p80.pool.sks-keyservers.net:80 \
-	# 	pgp.mit.edu \
-	# ; do \
-	# 	echo "Fetching GPG key $GPG_KEYS from $server"; \
-	# 	gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
-	# done; \
-	# test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
-	# gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
-	# && rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
+	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
+	&& curl -fSL https://github.com/nullunit/ngx_cache_purge/archive/c7345057ad5429617fc0823e92e3fa8043840cef.zip -o ngx_cache_purge-2.3.zip \
+	&& export GNUPGHOME="$(mktemp -d)" \
+	&& found=''; \
+	for server in \
+		ha.pool.sks-keyservers.net \
+		hkp://keyserver.ubuntu.com:80 \
+		hkp://p80.pool.sks-keyservers.net:80 \
+		pgp.mit.edu \
+	; do \
+		echo "Fetching GPG key $GPG_KEYS from $server"; \
+		gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
+	done; \
+	test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
+	gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
+	&& rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& rm nginx.tar.gz \

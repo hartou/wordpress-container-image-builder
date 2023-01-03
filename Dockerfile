@@ -1,5 +1,4 @@
-# FROM php:7.4.25-fpm-alpine3.14
-FROM 
+FROM php:7.4-fpm-alpine3.15 
 LABEL maintainer Azure App Service Container Images <appsvc-images@microsoft.com>
 # ========
 # ENV vars
@@ -26,7 +25,7 @@ ENV UB_MAX_INPUT_VARS 10000
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 # redis
-ENV PHPREDIS_VERSION 5.3.4
+ENV PHPREDIS_VERSION 5.3.2
 #Web Site Home
 ENV HOME_SITE "/home/site/wwwroot"
 # supervisor
@@ -41,96 +40,9 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # Migration
 ENV MYSQL_IMPORT_STATUSFILE_PATH "/home/dev/migrate/mysql/mysql_import_status.txt"
 ENV MYSQL_IMPORT_STATUSFILE_DIR "/home/dev/migrate/mysql/"
-#
-# --------
-# ~. tools
-# --------
-RUN set -ex \
-    && apk update \
-    && apk add --update linux-headers \
-    && apk add --no-cache openssl git net-tools tcpdump tcptraceroute vim curl wget bash\
-	&& cd /usr/bin \
-	&& wget http://www.vdberg.org/~richard/tcpping \
-	&& chmod 777 tcpping \
-# ========
-# install the PHP extensions we need and xdebug
-# ======== 
-    && apk add --no-cache                  \
-            --virtual .build-dependencies   \
-                $PHPIZE_DEPS                \
-                zlib-dev                    \
-                cyrus-sasl-dev              \
-                git                         \
-                autoconf                    \
-                g++                         \
-                libtool                     \
-                make                        \
-                pcre-dev                    \    
-            tini                            \
-            libintl                         \
-            icu                             \
-            icu-dev                         \
-            libxml2-dev                     \
-            postgresql-dev                  \
-            freetype-dev                    \
-            libjpeg-turbo-dev               \
-            libpng-dev                      \
-            gmp                             \
-            gmp-dev                         \
-            libmemcached-dev                \
-            imagemagick-dev                 \
-            libssh2                         \
-            libssh2-dev                     \
-            libxslt-dev                     \    
-    && docker-php-source extract \
-    && pecl install xdebug-beta apcu \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick \
-    && docker-php-ext-install exif \
-	&& docker-php-ext-install soap \
-    && docker-php-ext-install bcmath \
-    && docker-php-ext-install -j "$(nproc)" \
-	    mysqli \
-		opcache \
-		pdo_mysql \
-		pdo_pgsql \
-	&& docker-php-ext-enable apcu \
-    && docker-php-source delete \
-    && runDeps="$( \
-		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
-			| tr ',' '\n' \
-			| sort -u \
-			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
-	)" \
-	&& apk add --virtual .drupal-phpexts-rundeps $runDeps \
-	&& apk del .build-dependencies \	
-	&& docker-php-source delete \
-	&& mkdir -p /usr/local/php/tmp \
-	&& chmod 777 /usr/local/php/tmp \
-# ------
-# ssh
-# ------
-    && apk add --no-cache openssh-server \
-    && echo "$SSH_PASSWD" | chpasswd \
-#---------------
-# at
-#---------------
-    && apk add --no-cache at \
-#---------------
-# openrc service
-#---------------
-   && apk add --no-cache openrc \
-   && sed -i 's/"cgroup_add_service/" # cgroup_add_service/g' /lib/rc/sh/openrc-run.sh \
-# ----------
-# Nginx
-# ---------- 
-# Replace GPG_KEYS based on the key used to sign NGINX package
-# or import the public key used to sign the NGINX package
-# NGINX public keys can be found here: https://nginx.org/en/pgp_keys.html
-# previous GPG_KEYS is "B0F4253373F8F6F510D42178520A9993A1C052F8"
-# RUN set -ex\      
-	&& GPG_KEYS=13C82A63B603576156E30A4EA0EA981B66B0D967 \
-	&& CONFIG="\
+
+#----NGINX Configs----
+ARG CONFIG="\
 		--prefix=/etc/nginx \
 		--sbin-path=/usr/sbin/nginx \
 		--modules-path=/usr/lib/nginx/modules \
@@ -174,8 +86,106 @@ RUN set -ex \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-		--add-module=/usr/src/ngx_cache_purge-c7345057ad5429617fc0823e92e3fa8043840cef \
-	" \
+	" 
+#
+# --------
+# ~. tools
+# --------
+RUN set -ex \
+    && apk update \
+    && apk add --update linux-headers \
+    && apk add --no-cache openssl git net-tools tcpdump tcptraceroute vim curl wget bash\
+	&& cd /usr/bin \
+	&& wget http://www.vdberg.org/~richard/tcpping \
+	&& chmod 777 tcpping 
+# ========
+# install the PHP extensions we need and xdebug
+# ======== 
+RUN set -ex \
+    && apk update \
+    && apk add --no-cache                  \
+            --virtual .build-dependencies   \
+                $PHPIZE_DEPS                \
+                zlib-dev                    \
+                cyrus-sasl-dev              \
+                git                         \
+                autoconf                    \
+                g++                         \
+                libtool                     \
+                make                        \
+                pcre-dev                    \    
+            tini                            \
+            libintl                         \
+            icu                             \
+            icu-dev                         \
+            libxml2-dev                     \
+            postgresql-dev                  \
+            freetype-dev                    \
+            libjpeg-turbo-dev               \
+            libpng-dev                      \
+            gmp                             \
+            gmp-dev                         \
+            libmemcached-dev                \
+            imagemagick-dev                 \
+            libssh2                         \
+            libssh2-dev                     \
+            libxslt-dev                     \ 
+			libzip-dev                      
+
+RUN set -ex \
+    && apk update \  
+    && docker-php-source extract \
+    && pecl install xdebug-beta apcu \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && docker-php-ext-install exif \
+	&& docker-php-ext-install soap \
+    && docker-php-ext-install bcmath \
+    && docker-php-ext-install -j "$(nproc)" \
+	    mysqli \
+		opcache \
+		pdo_mysql \
+		pdo_pgsql \
+	&& docker-php-ext-enable apcu \
+    && docker-php-source delete \
+    && runDeps="$( \
+		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
+			| tr ',' '\n' \
+			| sort -u \
+			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+	)" \
+	&& apk add --virtual .drupal-phpexts-rundeps $runDeps \
+	&& apk del .build-dependencies \	
+	&& docker-php-source delete \
+	&& mkdir -p /usr/local/php/tmp \
+	&& chmod 777 /usr/local/php/tmp 
+# ------
+# ssh
+# ------
+RUN set -ex \
+    && apk update \
+    && apk add --no-cache openssh-server \
+    && echo "$SSH_PASSWD" | chpasswd \
+#---------------
+# at
+#---------------
+    && apk add --no-cache at \
+#---------------
+# openrc service
+#---------------
+   && apk add --no-cache openrc \
+   && sed -i 's/"cgroup_add_service/" # cgroup_add_service/g' /lib/rc/sh/openrc-run.sh \
+# ----------
+# Nginx
+# ---------- 
+# Replace GPG_KEYS based on the key used to sign NGINX package
+# or import the public key used to sign the NGINX package
+# NGINX public keys can be found here: https://nginx.org/en/pgp_keys.html
+# previous GPG_KEYS is "B0F4253373F8F6F510D42178520A9993A1C052F8"
+# RUN set -ex\      
+	&& GPG_KEYS=13C82A63B603576156E30A4EA0EA981B66B0D967
+RUN set -ex \
+    && apk update \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
 	&& apk add --no-cache --virtual .build-deps \
@@ -191,7 +201,7 @@ RUN set -ex \
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
-	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
+	&& curl -fSL http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	# && curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	# && curl -fSL https://github.com/nullunit/ngx_cache_purge/archive/c7345057ad5429617fc0823e92e3fa8043840cef.zip -o ngx_cache_purge-2.3.zip \
 	# && export GNUPGHOME="$(mktemp -d)" \
@@ -211,8 +221,8 @@ RUN set -ex \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& rm nginx.tar.gz \
-	&& unzip ngx_cache_purge-2.3.zip -d /usr/src \
-	&& rm ngx_cache_purge-2.3.zip \
+	# && unzip ngx_cache_purge-2.3.zip -d /usr/src \
+	# && rm ngx_cache_purge-2.3.zip \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -238,8 +248,6 @@ RUN set -ex \
 	&& strip /usr/sbin/nginx* \
 	&& strip /usr/lib/nginx/modules/*.so \
 	&& rm -rf /usr/src/nginx-$NGINX_VERSION \
-	&& rm -rf /usr/src/ngx_cache_purge-c7345057ad5429617fc0823e92e3fa8043840cef \
-	\
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
 	# then move `envsubst` out of the way so `gettext` can

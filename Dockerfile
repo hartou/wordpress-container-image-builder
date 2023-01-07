@@ -36,10 +36,10 @@ ENV WORDPRESS_HOME "/home/site/wwwroot"
 ENV WORDPRESS_LOCK_HOME "/home/wp-locks"
 ENV WORDPRESS_LOCK_FILE $WORDPRESS_LOCK_HOME"/wp_deployment_status.txt"
 #
-ENV DOCKER_BUILD_HOME "/dockerbuild"
-# Migration
-ENV MYSQL_IMPORT_STATUSFILE_PATH "/home/dev/migrate/mysql/mysql_import_status.txt"
-ENV MYSQL_IMPORT_STATUSFILE_DIR "/home/dev/migrate/mysql/"
+# ENV DOCKER_BUILD_HOME "/dockerbuild"
+# # Migration
+# ENV MYSQL_IMPORT_STATUSFILE_PATH "/home/dev/migrate/mysql/mysql_import_status.txt"
+# ENV MYSQL_IMPORT_STATUSFILE_DIR "/home/dev/migrate/mysql/"
 
 #----NGINX Configs----
 ARG CONFIG="\
@@ -184,6 +184,8 @@ RUN set -ex \
 # previous GPG_KEYS is "B0F4253373F8F6F510D42178520A9993A1C052F8"
 # RUN set -ex\      
 	&& GPG_KEYS=13C82A63B603576156E30A4EA0EA981B66B0D967
+
+
 RUN set -ex \
     && apk update \
 	&& addgroup -S nginx \

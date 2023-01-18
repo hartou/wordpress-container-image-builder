@@ -193,119 +193,120 @@ setup_wordpress() {
         fi
     fi
 
-    if [ $(grep "WP_INSTALLATION_COMPLETED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "SMUSH_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ]; then
-        #backward compatibility for previous versions that don't have plugin source code in wordpress repo.
-        if [ $(grep "GIT_PULL_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
-            if wp plugin install wp-smushit --force --activate --path=$WORDPRESS_HOME --allow-root; then
-                echo "SMUSH_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
-            fi
-        else
-            if wp plugin deactivate wp-smushit --quiet --path=$WORDPRESS_HOME --allow-root \
-            && wp plugin activate wp-smushit --path=$WORDPRESS_HOME --allow-root; then
-                echo "SMUSH_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
-            fi
-        fi
-    fi
+    # if [ $(grep "WP_INSTALLATION_COMPLETED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "SMUSH_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ]; then
+    #     #backward compatibility for previous versions that don't have plugin source code in wordpress repo.
+    #     if [ $(grep "GIT_PULL_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
+    #         if wp plugin install wp-smushit --force --activate --path=$WORDPRESS_HOME --allow-root; then
+    #             echo "SMUSH_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
+    #         fi
+    #     else
+    #         if wp plugin deactivate wp-smushit --quiet --path=$WORDPRESS_HOME --allow-root \
+    #         && wp plugin activate wp-smushit --path=$WORDPRESS_HOME --allow-root; then
+    #             echo "SMUSH_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
+    #         fi
+    #     fi
+    # fi
 
-    if [ $(grep "SMUSH_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "SMUSH_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ]; then
-        if wp option set skip-smush-setup 1 --path=$WORDPRESS_HOME --allow-root \
-        && wp option patch update wp-smush-settings auto 1 --path=$WORDPRESS_HOME --allow-root \
-        && wp option patch update wp-smush-settings lossy 0 --path=$WORDPRESS_HOME --allow-root \
-        && wp option patch update wp-smush-settings strip_exif 1 --path=$WORDPRESS_HOME --allow-root \
-        && wp option patch update wp-smush-settings original 1 --path=$WORDPRESS_HOME --allow-root \
-        && wp option patch update wp-smush-settings lazy_load 0 --path=$WORDPRESS_HOME --allow-root \
-        && wp option patch update wp-smush-settings usage 0 --path=$WORDPRESS_HOME --allow-root; then
-            echo "SMUSH_PLUGIN_CONFIG_UPDATED" >> $WORDPRESS_LOCK_FILE
-        fi
-    fi
+    # if [ $(grep "SMUSH_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "SMUSH_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ]; then
+    #     if wp option set skip-smush-setup 1 --path=$WORDPRESS_HOME --allow-root \
+    #     && wp option patch update wp-smush-settings auto 1 --path=$WORDPRESS_HOME --allow-root \
+    #     && wp option patch update wp-smush-settings lossy 0 --path=$WORDPRESS_HOME --allow-root \
+    #     && wp option patch update wp-smush-settings strip_exif 1 --path=$WORDPRESS_HOME --allow-root \
+    #     && wp option patch update wp-smush-settings original 1 --path=$WORDPRESS_HOME --allow-root \
+    #     && wp option patch update wp-smush-settings lazy_load 0 --path=$WORDPRESS_HOME --allow-root \
+    #     && wp option patch update wp-smush-settings usage 0 --path=$WORDPRESS_HOME --allow-root; then
+    #         echo "SMUSH_PLUGIN_CONFIG_UPDATED" >> $WORDPRESS_LOCK_FILE
+    #     fi
+    # fi
 
-    if [ $(grep "WP_INSTALLATION_COMPLETED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "W3TC_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ]; then
-        #backward compatibility for previous versions that don't have plugin source code in wordpress repo.
-        if [ $(grep "GIT_PULL_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
-            if wp plugin install w3-total-cache --force --activate --path=$WORDPRESS_HOME --allow-root; then
-                echo "W3TC_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
-            fi
-        else
-            if wp plugin deactivate w3-total-cache --quiet --path=$WORDPRESS_HOME --allow-root \
-            && wp plugin activate w3-total-cache --path=$WORDPRESS_HOME --allow-root; then
-                echo "W3TC_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
-            fi
-        fi
-    fi
+    # if [ $(grep "WP_INSTALLATION_COMPLETED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "W3TC_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ]; then
+    #     #backward compatibility for previous versions that don't have plugin source code in wordpress repo.
+    #     if [ $(grep "GIT_PULL_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
+    #         if wp plugin install w3-total-cache --force --activate --path=$WORDPRESS_HOME --allow-root; then
+    #             echo "W3TC_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
+    #         fi
+    #     else
+    #         if wp plugin deactivate w3-total-cache --quiet --path=$WORDPRESS_HOME --allow-root \
+    #         && wp plugin activate w3-total-cache --path=$WORDPRESS_HOME --allow-root; then
+    #             echo "W3TC_PLUGIN_INSTALLED" >> $WORDPRESS_LOCK_FILE
+    #         fi
+    #     fi
+    # fi
 
-    if [ $(grep "W3TC_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ]; then
-        if mkdir -p $WORDPRESS_HOME/wp-content/cache/tmp \
-        && mkdir -p $WORDPRESS_HOME/wp-content/w3tc-config \
-        && wp w3-total-cache import $WORDPRESS_SOURCE/w3tc-config.json --path=$WORDPRESS_HOME --allow-root; then
-            echo "W3TC_PLUGIN_CONFIG_UPDATED" >> $WORDPRESS_LOCK_FILE
-        fi
-    fi
+    # if [ $(grep "W3TC_PLUGIN_INSTALLED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ]; then
+    #     if mkdir -p $WORDPRESS_HOME/wp-content/cache/tmp \
+    #     && mkdir -p $WORDPRESS_HOME/wp-content/w3tc-config \
+    #     && wp w3-total-cache import $WORDPRESS_SOURCE/w3tc-config.json --path=$WORDPRESS_HOME --allow-root; then
+    #         echo "W3TC_PLUGIN_CONFIG_UPDATED" >> $WORDPRESS_LOCK_FILE
+    #     fi
+    # fi
+    #Canceling CDN variables setup " This is not the vanilla wordpress setup"
+    # setup_cdn_variables
     
-    setup_cdn_variables
+    # if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "BLOB_STORAGE_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] \
+    # && [ ! $(grep "FIRST_TIME_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ] && [[ "$IS_BLOB_STORAGE_ENABLED" == "True" ]]; then
+
+    #     if ! [[ $BLOB_STORAGE_URL ]]; then
+    #         BLOB_STORAGE_URL="${STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
+    #     fi
+
+    #     if wp w3-total-cache import $WORDPRESS_SOURCE/w3tc-blob-config.json --path=$WORDPRESS_HOME --allow-root \
+    #     && wp w3-total-cache option set cdn.azure.user $STORAGE_ACCOUNT_NAME --path=$WORDPRESS_HOME --allow-root \
+    #     && wp w3-total-cache option set cdn.azure.container $BLOB_CONTAINER_NAME --path=$WORDPRESS_HOME --allow-root \
+    #     && wp w3-total-cache option set cdn.azure.key $STORAGE_ACCOUNT_KEY --path=$WORDPRESS_HOME --allow-root \
+    #     && wp w3-total-cache option set cdn.enabled true --type=boolean --path=$WORDPRESS_HOME --allow-root \
+    #     && wp w3-total-cache option set cdn.azure.cname $BLOB_STORAGE_URL --type=array --path=$WORDPRESS_HOME --allow-root \
+    #     && wp plugin deactivate w3-total-cache --quiet --path=$WORDPRESS_HOME --allow-root \
+    #     && wp plugin activate w3-total-cache --path=$WORDPRESS_HOME --allow-root; then
+    #         echo "BLOB_STORAGE_CONFIGURATION_COMPLETE" >> $WORDPRESS_LOCK_FILE
+    #     fi
+    # fi
     
-    if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "BLOB_STORAGE_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] \
-    && [ ! $(grep "FIRST_TIME_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ] && [[ "$IS_BLOB_STORAGE_ENABLED" == "True" ]]; then
-
-        if ! [[ $BLOB_STORAGE_URL ]]; then
-            BLOB_STORAGE_URL="${STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
-        fi
-
-        if wp w3-total-cache import $WORDPRESS_SOURCE/w3tc-blob-config.json --path=$WORDPRESS_HOME --allow-root \
-        && wp w3-total-cache option set cdn.azure.user $STORAGE_ACCOUNT_NAME --path=$WORDPRESS_HOME --allow-root \
-        && wp w3-total-cache option set cdn.azure.container $BLOB_CONTAINER_NAME --path=$WORDPRESS_HOME --allow-root \
-        && wp w3-total-cache option set cdn.azure.key $STORAGE_ACCOUNT_KEY --path=$WORDPRESS_HOME --allow-root \
-        && wp w3-total-cache option set cdn.enabled true --type=boolean --path=$WORDPRESS_HOME --allow-root \
-        && wp w3-total-cache option set cdn.azure.cname $BLOB_STORAGE_URL --type=array --path=$WORDPRESS_HOME --allow-root \
-        && wp plugin deactivate w3-total-cache --quiet --path=$WORDPRESS_HOME --allow-root \
-        && wp plugin activate w3-total-cache --path=$WORDPRESS_HOME --allow-root; then
-            echo "BLOB_STORAGE_CONFIGURATION_COMPLETE" >> $WORDPRESS_LOCK_FILE
-        fi
-    fi
+    # if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ "$IS_CDN_ENABLED" == "True" ] \
+    # && [ ! $(grep "BLOB_CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
+    #     if [ "$IS_BLOB_STORAGE_ENABLED" == "True" ] && [ $(grep "BLOB_STORAGE_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] \
+    #     && [ ! $(grep "BLOB_CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
+    #         start_at_daemon
+    #         echo "bash /usr/local/bin/w3tc_cdn_config.sh BLOB_CDN" | at now +10 minutes
+    #     elif [ "$IS_BLOB_STORAGE_ENABLED" != "True" ] && [ ! $(grep "CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
+    #         start_at_daemon
+    #         echo "bash /usr/local/bin/w3tc_cdn_config.sh CDN" | at now +10 minutes
+    #     fi
+    # fi
     
-    if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ "$IS_CDN_ENABLED" == "True" ] \
-    && [ ! $(grep "BLOB_CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
-        if [ "$IS_BLOB_STORAGE_ENABLED" == "True" ] && [ $(grep "BLOB_STORAGE_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] \
-        && [ ! $(grep "BLOB_CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
-            start_at_daemon
-            echo "bash /usr/local/bin/w3tc_cdn_config.sh BLOB_CDN" | at now +10 minutes
-        elif [ "$IS_BLOB_STORAGE_ENABLED" != "True" ] && [ ! $(grep "CDN_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
-            start_at_daemon
-            echo "bash /usr/local/bin/w3tc_cdn_config.sh CDN" | at now +10 minutes
-        fi
-    fi
-    
-    if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ "$IS_AFD_ENABLED" == "True" ] \
-    && [ ! $(grep "BLOB_AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
-        if [ "$IS_BLOB_STORAGE_ENABLED" == "True" ] && [ $(grep "BLOB_STORAGE_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] \
-        && [ ! $(grep "BLOB_AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
-            start_at_daemon
-            echo "bash /usr/local/bin/w3tc_cdn_config.sh BLOB_AFD" | at now +2 minutes
-        elif [ "$IS_BLOB_STORAGE_ENABLED" != "True" ] && [ ! $(grep "AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
-            start_at_daemon
-            echo "bash /usr/local/bin/w3tc_cdn_config.sh AFD" | at now +2 minutes
-        fi
-    fi
+    # if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ "$IS_AFD_ENABLED" == "True" ] \
+    # && [ ! $(grep "BLOB_AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] && [ ! $(grep "AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
+    #     if [ "$IS_BLOB_STORAGE_ENABLED" == "True" ] && [ $(grep "BLOB_STORAGE_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ] \
+    #     && [ ! $(grep "BLOB_AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
+    #         start_at_daemon
+    #         echo "bash /usr/local/bin/w3tc_cdn_config.sh BLOB_AFD" | at now +2 minutes
+    #     elif [ "$IS_BLOB_STORAGE_ENABLED" != "True" ] && [ ! $(grep "AFD_CONFIGURATION_COMPLETE" $WORDPRESS_LOCK_FILE) ]; then
+    #         start_at_daemon
+    #         echo "bash /usr/local/bin/w3tc_cdn_config.sh AFD" | at now +2 minutes
+    #     fi
+    # fi
 
-    if [  $(grep "WP_INSTALLATION_COMPLETED" $WORDPRESS_LOCK_FILE) ] &&  [ ! $(grep "WP_LANGUAGE_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ] &&  [ ! $(grep "FIRST_TIME_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
-	    if [[ $WORDPRESS_LOCALE_CODE ]] && [[ ! "$WORDPRESS_LOCALE_CODE" == "en_US"  ]]; then
-            if wp language core install $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
-                && wp site switch-language $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
-                && wp language theme install --all $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
-                && wp language plugin install --all $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
-                && wp language theme update --all --path=$WORDPRESS_HOME --allow-root \
-                && wp language plugin update --all --path=$WORDPRESS_HOME --allow-root; then
-                echo "WP_LANGUAGE_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
-            fi
-        else
-            echo "WP_LANGUAGE_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
-        fi
-    fi
+    # if [  $(grep "WP_INSTALLATION_COMPLETED" $WORDPRESS_LOCK_FILE) ] &&  [ ! $(grep "WP_LANGUAGE_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ] &&  [ ! $(grep "FIRST_TIME_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
+	#     if [[ $WORDPRESS_LOCALE_CODE ]] && [[ ! "$WORDPRESS_LOCALE_CODE" == "en_US"  ]]; then
+    #         if wp language core install $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
+    #             && wp site switch-language $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
+    #             && wp language theme install --all $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
+    #             && wp language plugin install --all $WORDPRESS_LOCALE_CODE --path=$WORDPRESS_HOME --allow-root \
+    #             && wp language theme update --all --path=$WORDPRESS_HOME --allow-root \
+    #             && wp language plugin update --all --path=$WORDPRESS_HOME --allow-root; then
+    #             echo "WP_LANGUAGE_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
+    #         fi
+    #     else
+    #         echo "WP_LANGUAGE_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
+    #     fi
+    # fi
 
-    translate_welcome_content
+    # translate_welcome_content
 
-    if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ $(grep "SMUSH_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] &&  [ ! $(grep "FIRST_TIME_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
-        echo "FIRST_TIME_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
-    fi
+    # if [ $(grep "W3TC_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] && [ $(grep "SMUSH_PLUGIN_CONFIG_UPDATED" $WORDPRESS_LOCK_FILE) ] &&  [ ! $(grep "FIRST_TIME_SETUP_COMPLETED" $WORDPRESS_LOCK_FILE) ]; then
+    #     echo "FIRST_TIME_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
+    # fi
+    echo "FIRST_TIME_SETUP_COMPLETED" >> $WORDPRESS_LOCK_FILE
 
     if [ ! $AZURE_DETECTED ]; then 
 	    echo "INFO: NOT in Azure, chown for "$WORDPRESS_HOME 

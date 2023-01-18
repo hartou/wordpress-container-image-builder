@@ -1,4 +1,4 @@
-# dockerize-appservice
+# Wordpress image builder
 Build Docker and Publish to App Service
 
 # Optimize image tags

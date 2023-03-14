@@ -1,3 +1,8 @@
+# Image Base of microsoft/azure-app-service
+# author: Julien-Robert Lecadou
+# date: 2023-01-01
+
+
 FROM php:7.4-fpm-alpine3.15 
 LABEL maintainer Azure App Service Container Images <appsvc-images@microsoft.com>
 # ========
